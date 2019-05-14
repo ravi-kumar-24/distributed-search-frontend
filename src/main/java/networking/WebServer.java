@@ -17,6 +17,7 @@ public class WebServer {
 
     private static final String HOME_PAGE_ASSETS_BASE_DIR = "/ui_assets/";
 
+
     private final int port;
     private HttpServer server;
     private final OnRequestCallback requestCallback;
@@ -54,9 +55,7 @@ public class WebServer {
             return;
         }
 
-       // exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
-
-        byte [] response = new byte[]{};
+        byte [] response;
 
         String asset = exchange.getRequestURI().getPath();
 
@@ -65,6 +64,7 @@ public class WebServer {
         } else {
             response = readUiAsset(asset);
         }
+        addContentType(asset, exchange);
 
         sendResponse(response, exchange);
     }
@@ -78,6 +78,16 @@ public class WebServer {
         URI assetFile  = URI.create(assetUrl.getFile());
         FileInputStream fileInputStream = new FileInputStream(assetFile.getPath());
         return fileInputStream.readAllBytes();
+    }
+
+    private static void addContentType(String asset, HttpExchange exchange) {
+        String contentType = "text/html";
+        if (asset.endsWith("js")) {
+            contentType = "text/javascript";
+        } else if (asset.endsWith("css")) {
+            contentType = "text/css";
+        }
+        exchange.getResponseHeaders().add("Content-Type", contentType);
     }
 
     private void handleTaskRequest(HttpExchange exchange) throws IOException {
