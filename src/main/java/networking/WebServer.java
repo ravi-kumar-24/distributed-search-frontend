@@ -7,7 +7,6 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.Executors;
 
@@ -41,15 +40,15 @@ public class WebServer {
         statusContext.setHandler(this::handleStatusCheckRequest);
         taskContext.setHandler(this::handleTaskRequest);
 
-        // handle html page load
+        // handle requests for resources
         HttpContext homePageContext = server.createContext(HOME_PAGE_ENDPOING);
-        homePageContext.setHandler(this::handleHomePageRequest);
+        homePageContext.setHandler(this::handleGetResource);
 
         server.setExecutor(Executors.newFixedThreadPool(8));
         server.start();
     }
 
-    private void handleHomePageRequest(HttpExchange exchange) throws IOException {
+    private void handleGetResource(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("get")) {
             exchange.close();
             return;
@@ -70,14 +69,12 @@ public class WebServer {
     }
 
     private byte [] readUiAsset(String asset) throws IOException {
-        URL assetUrl = getClass().getResource( asset);
-        if ( assetUrl == null) {
+        InputStream assetStream = getClass().getResourceAsStream( asset);
+        if ( assetStream == null) {
             return new byte[]{};
         }
 
-        URI assetFile  = URI.create(assetUrl.getFile());
-        FileInputStream fileInputStream = new FileInputStream(assetFile.getPath());
-        return fileInputStream.readAllBytes();
+        return assetStream.readAllBytes();
     }
 
     private static void addContentType(String asset, HttpExchange exchange) {

@@ -1,6 +1,7 @@
 $( document ).ready(function() {
     console.log( "ready!" );
-    // find elements
+
+    // find elements on the page
     var banner = $("#banner-message");
     var button = $("#submit_button");
     var searchBox = $("#search_text");
@@ -14,6 +15,7 @@ $( document ).ready(function() {
     button.on("click", function(){
         banner.addClass("alt");
 
+        // send request to the server
         $.ajax({
           method : "POST",
           contentType: "application/json",
@@ -28,19 +30,20 @@ $( document ).ready(function() {
         var searchQuery = searchBox.val();
         var minScore = parseFloat(minScoreBox.val(), 10);
         if (isNaN(minScore)) {
-        minScore = 0;
+            minScore = 0;
         }
 
         var maxNumberOfResults = parseInt(numResultsBox.val());
 
         if (isNaN(maxNumberOfResults)) {
-        maxNumberOfResults = Number.MAX_SAFE_INTEGER;
+            maxNumberOfResults = Number.MAX_SAFE_INTEGER;
         }
 
+        // Search request to the server
         var frontEndRequest = {
-        search_query: searchQuery,
-        min_score: minScore,
-        max_number_of_results: maxNumberOfResults
+            search_query: searchQuery,
+            min_score: minScore,
+            max_number_of_results: maxNumberOfResults
         };
 
         return JSON.stringify(frontEndRequest);
@@ -55,6 +58,9 @@ $( document ).ready(function() {
         }
     }
 
+    /*
+        Add results from the server to the html or how an error message
+     */
     function addResults(data) {
         var baseDir = data.documents_location;
 

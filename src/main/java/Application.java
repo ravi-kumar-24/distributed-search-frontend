@@ -23,10 +23,12 @@ public class Application implements Watcher {
         ZooKeeper zooKeeper = application.connectToZookeeper();
 
         ServiceRegistry coordinatorsServiceRegistry = new ServiceRegistry(zooKeeper, ServiceRegistry.COORDINATORS_REGISTRY_ZNODE);
-        UserSearchHandler searchHandler = new UserSearchHandler(coordinatorsServiceRegistry);
 
+        UserSearchHandler searchHandler = new UserSearchHandler(coordinatorsServiceRegistry);
         WebServer webServer = new WebServer(currentServerPort, searchHandler);
         webServer.startServer();
+
+        System.out.println("Server is listening on port " + currentServerPort);
 
         application.run();
         application.close();
