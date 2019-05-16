@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.protobuf.InvalidProtocolBufferException;
+import model.frontend.FrontendSearchRequest;
+import model.frontend.FrontendSearchResponse;
 import model.proto.SearchModel;
 import networking.OnRequestCallback;
 import networking.WebClient;
 import org.apache.zookeeper.KeeperException;
+
+import java.io.IOException;
 
 public class UserSearchHandler implements OnRequestCallback {
     private static final String ENDPOINT = "/documents_search";
@@ -27,7 +31,17 @@ public class UserSearchHandler implements OnRequestCallback {
 
     @Override
     public byte[] handleRequest(byte[] requestPayload) {
-        return new byte[0];
+        try {
+            FrontendSearchRequest frontendSearchRequest =
+                    objectMapper.readValue(requestPayload, FrontendSearchRequest.class);
+
+            FrontendSearchResponse frontendSearchResponse = createFrontendResponse(frontendSearchRequest);
+
+            return objectMapper.writeValueAsBytes(frontendSearchResponse);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
     }
 
     @Override
