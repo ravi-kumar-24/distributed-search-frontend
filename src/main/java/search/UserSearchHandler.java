@@ -1,6 +1,9 @@
 package search;
 
 import cluster.management.ServiceRegistry;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.protobuf.InvalidProtocolBufferException;
 import model.proto.SearchModel;
 import networking.OnRequestCallback;
@@ -9,15 +12,19 @@ import org.apache.zookeeper.KeeperException;
 
 public class UserSearchHandler implements OnRequestCallback {
     private static final String ENDPOINT = "/documents_search";
-
+    private final ObjectMapper objectMapper;
     private final WebClient client;
     private final ServiceRegistry searchCoordinatorRegistry;
 
     public UserSearchHandler(ServiceRegistry searchCoordinatorRegistry) {
         this.searchCoordinatorRegistry = searchCoordinatorRegistry;
         this.client = new WebClient();
-
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     }
+
+
     @Override
     public byte[] handleRequest(byte[] requestPayload) {
         return new byte[0];
