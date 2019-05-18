@@ -6,16 +6,12 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
 import java.util.concurrent.Executors;
 
 public class WebServer {
     private static final String STATUS_ENDPOINT = "/status";
-    private static final String HOME_PAGE_ENDPOING = "/";
-
-    private static final String HOME_PAGE_ASSETS_BASE_DIR = "/ui_assets/";
-
+    private static final String HOME_PAGE_ENDPOINT = "/";
+    private static final String HOME_PAGE_UI_ASSETS_BASE_DIR = "/ui_assets/";
 
     private final int port;
     private HttpServer server;
@@ -41,14 +37,14 @@ public class WebServer {
         taskContext.setHandler(this::handleTaskRequest);
 
         // handle requests for resources
-        HttpContext homePageContext = server.createContext(HOME_PAGE_ENDPOING);
-        homePageContext.setHandler(this::handleGetResource);
+        HttpContext homePageContext = server.createContext(HOME_PAGE_ENDPOINT);
+        homePageContext.setHandler(this::handleRequestForAsset);
 
         server.setExecutor(Executors.newFixedThreadPool(8));
         server.start();
     }
 
-    private void handleGetResource(HttpExchange exchange) throws IOException {
+    private void handleRequestForAsset(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equalsIgnoreCase("get")) {
             exchange.close();
             return;
@@ -58,8 +54,8 @@ public class WebServer {
 
         String asset = exchange.getRequestURI().getPath();
 
-        if (asset.equals(HOME_PAGE_ENDPOING)) {
-            response = readUiAsset(HOME_PAGE_ASSETS_BASE_DIR + "index.html");
+        if (asset.equals(HOME_PAGE_ENDPOINT)) {
+            response = readUiAsset(HOME_PAGE_UI_ASSETS_BASE_DIR + "index.html");
         } else {
             response = readUiAsset(asset);
         }
