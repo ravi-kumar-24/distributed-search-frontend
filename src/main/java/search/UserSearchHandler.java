@@ -1,3 +1,27 @@
+/*
+ *  MIT License
+ *
+ *  Copyright (c) 2019 Michael Pogrebinsky - Distributed Systems & Cloud Computing with Java
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package search;
 
 import cluster.management.ServiceRegistry;
@@ -66,11 +90,11 @@ public class UserSearchHandler implements OnRequestCallback {
 
         List<FrontendSearchResponse.SearchResultInfo> searchResultInfoList = new ArrayList<>();
 
-        for ( int i = 0 ; i < searchClusterResponse.getRelevantDocumentsCount() && i < maxResults ; i ++) {
+        for (int i = 0; i < searchClusterResponse.getRelevantDocumentsCount() && i < maxResults; i++) {
 
             int normalizedDocumentScore = normalizeScore(searchClusterResponse.getRelevantDocuments(i).getScore(), maxScore);
             if (normalizedDocumentScore < minScore) {
-                break;
+                continue; // break in the lecture is an error
             }
 
             String documentName = searchClusterResponse.getRelevantDocuments(i).getDocumentName();
@@ -109,7 +133,7 @@ public class UserSearchHandler implements OnRequestCallback {
     }
 
     private static double getMaxScore(SearchModel.Response searchClusterResponse) {
-        if ( searchClusterResponse.getRelevantDocumentsCount() == 0) {
+        if (searchClusterResponse.getRelevantDocumentsCount() == 0) {
             return 0;
         }
         return searchClusterResponse.getRelevantDocumentsList()
@@ -134,7 +158,7 @@ public class UserSearchHandler implements OnRequestCallback {
             byte[] payloadBody = client.sendTask(coordinatorAddress, searchRequest.toByteArray()).join();
 
             return SearchModel.Response.parseFrom(payloadBody);
-        } catch (InterruptedException | KeeperException |  InvalidProtocolBufferException e) {
+        } catch (InterruptedException | KeeperException | InvalidProtocolBufferException e) {
             e.printStackTrace();
             return SearchModel.Response.getDefaultInstance();
         }
